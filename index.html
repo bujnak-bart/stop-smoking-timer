@@ -1,0 +1,464 @@
+<!--
+StopSmokingTimer.html with Velo theme + monitor display toggle + beer converter + hours counter
+-->
+
+<!DOCTYPE html>
+<html lang="sk">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Čas od abstinencie - Timer</title>
+    <style>
+      :root {
+        --bg: #0f1724;
+        --card: #0b1220;
+        --accent: #22c55e;
+        --muted: #9aa7b2;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+          Roboto, "Helvetica Neue", Arial;
+        color: #e6eef6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background: linear-gradient(180deg, #071226 0%, #0b1622 100%),
+          url("https://upload.wikimedia.org/wikipedia/commons/7/7d/Velo_nicotine_pouches.jpg");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+      }
+      .wrap {
+        width: 960px;
+        max-width: 95%;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(6px);
+        border-radius: 14px;
+        padding: 22px;
+        box-shadow: 0 10px 30px rgba(2, 6, 23, 0.6);
+        position: relative;
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+      }
+      h1 {
+        font-size: 20px;
+        margin: 0;
+      }
+      p.lead {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 18px;
+      }
+      .card {
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.05),
+          rgba(255, 255, 255, 0.02)
+        );
+        padding: 18px;
+        border-radius: 12px;
+      }
+      .timer {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        align-items: center;
+        padding: 18px;
+      }
+      .segment {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 12px 16px;
+        border-radius: 10px;
+        text-align: center;
+        min-width: 96px;
+      }
+      .number {
+        font-size: 32px;
+        font-weight: 700;
+        line-height: 1;
+      }
+      .label {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 6px;
+      }
+      .metrics {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 14px;
+      }
+      .metric {
+        flex: 1 1 140px;
+        background: rgba(255, 255, 255, 0.05);
+        padding: 12px;
+        border-radius: 10px;
+        text-align: center;
+      }
+      .metric .big {
+        font-size: 20px;
+        font-weight: 700;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      label {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: transparent;
+        color: inherit;
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+      }
+      button {
+        cursor: pointer;
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 0;
+        background: var(--accent);
+        color: #052018;
+        font-weight: 600;
+      }
+      .btn-ghost {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: inherit;
+      }
+      footer {
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 12px;
+        text-align: center;
+      }
+      #displayBtn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        padding: 6px 10px;
+        border-radius: 8px;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      #displayBtn img {
+        width: 22px;
+        height: 22px;
+      }
+      #veloLogo {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        width: 80px;
+        opacity: 0.9;
+      }
+      @media (max-width: 880px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .hidden {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <button id="displayBtn" title="Prepni režim zobrazenia">
+        <span>Zobraziť len timer</span>
+      </button>
+      <img
+        id="veloLogo"
+        src="https://www.zuvaj.sk/image/cache/catalog/veo/VEO_Purple%20Click-750x750.png"
+        alt=""
+      />
+
+      <header>
+        <div>
+          <h1>ĽUDO už nefajčí</h1>
+          <p class="lead">
+            Ukazuje presný čas (dni, hodiny, minúty, sekundy), celkové hodiny,
+            cigarety ušetrené, peniaze a počet pív.
+          </p>
+        </div>
+        <div>
+          <small class="lead"
+            >Tip: nastavte presný dátum a čas, kedy kolega prestal.</small
+          >
+        </div>
+      </header>
+
+      <div class="grid">
+        <div class="card" id="mainCard">
+          <div style="text-align: center">
+            <div id="timer" class="timer" aria-live="polite">
+              <div class="segment">
+                <div id="days" class="number">0</div>
+                <div class="label">Dni</div>
+              </div>
+              <div class="segment">
+                <div id="hours" class="number">00</div>
+                <div class="label">Hodín</div>
+              </div>
+              <div class="segment">
+                <div id="minutes" class="number">00</div>
+                <div class="label">Minút</div>
+              </div>
+              <div class="segment">
+                <div id="seconds" class="number">00</div>
+                <div class="label">Sekúnd</div>
+              </div>
+            </div>
+
+            <div class="metrics">
+              <div class="metric">
+                <div class="label">Celkové hodiny</div>
+                <div id="totalHours" class="big">0</div>
+              </div>
+              <div class="metric">
+                <div class="label">Cigarety ušetrené</div>
+                <div id="cigsSaved" class="big">0</div>
+              </div>
+              <div class="metric">
+                <div class="label">Peniaze ušetrené</div>
+                <div id="moneySaved" class="big">0.00 €</div>
+              </div>
+              <div class="metric">
+                <div class="label">Pivá za to 🍺</div>
+                <div id="beersSaved" class="big">0</div>
+              </div>
+              <div class="metric">
+                <div class="label">Pripomienky</div>
+                <div id="notes" class="big">Drží sa skvele 💪</div>
+              </div>
+            </div>
+          </div>
+
+          <footer>
+            Autom. aktualizácia každú sekundu. Dáta sú uložené lokálne v
+            prehliadači.
+          </footer>
+        </div>
+
+        <aside class="card" id="settingsPanel">
+          <form id="settings">
+            <div>
+              <label for="quitDatetime">Dátum a čas prestania</label>
+              <input type="datetime-local" id="quitDatetime" />
+            </div>
+
+            <div>
+              <label for="cigsPerDay">Cigarety denne (aký bol priemer)</label>
+              <input type="number" id="cigsPerDay" min="0" step="1" />
+            </div>
+
+            <div class="row">
+              <div style="flex: 1">
+                <label for="pricePerPack">Cena za balíček (€)</label>
+                <input type="number" id="pricePerPack" min="0" step="0.01" />
+              </div>
+              <div style="width: 110px">
+                <label for="cigsPerPack">Cig/pack</label>
+                <input type="number" id="cigsPerPack" min="1" step="1" />
+              </div>
+            </div>
+
+            <div class="row">
+              <button type="button" id="saveBtn">Uložiť</button>
+              <button type="button" id="setNow" class="btn-ghost">
+                Nastaviť teraz
+              </button>
+              <button type="button" id="resetBtn" class="btn-ghost">
+                Reset
+              </button>
+            </div>
+
+            <div style="margin-top: 8px">
+              <label for="noteInput">Poznámka (zobrazená v metrike)</label>
+              <input id="noteInput" />
+            </div>
+          </form>
+        </aside>
+      </div>
+    </div>
+
+    <script>
+      const STORAGE_KEY = "stopSmokingTimer.settings";
+      const BEER_PRICE = 2.5;
+
+      function loadSettings() {
+        try {
+          return JSON.parse(localStorage.getItem(STORAGE_KEY));
+        } catch {
+          return null;
+        }
+      }
+      function saveSettings(s) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+      }
+
+      const quitInput = document.getElementById("quitDatetime");
+      const cigsInput = document.getElementById("cigsPerDay");
+      const priceInput = document.getElementById("pricePerPack");
+      const perPackInput = document.getElementById("cigsPerPack");
+      const noteInput = document.getElementById("noteInput");
+
+      const daysEl = document.getElementById("days");
+      const hoursEl = document.getElementById("hours");
+      const minutesEl = document.getElementById("minutes");
+      const secondsEl = document.getElementById("seconds");
+      const totalHoursEl = document.getElementById("totalHours");
+      const cigsSavedEl = document.getElementById("cigsSaved");
+      const moneySavedEl = document.getElementById("moneySaved");
+      const beersSavedEl = document.getElementById("beersSaved");
+      const notesEl = document.getElementById("notes");
+
+      let settings = loadSettings() || {
+        quit: new Date().toISOString().slice(0, 16),
+        cigsPerDay: 10,
+        pricePerPack: 5,
+        cigsPerPack: 20,
+        note: "Drží sa skvele 💪",
+      };
+
+      function populate() {
+        quitInput.value = settings.quit;
+        cigsInput.value = settings.cigsPerDay;
+        priceInput.value = settings.pricePerPack;
+        perPackInput.value = settings.cigsPerPack;
+        noteInput.value = settings.note;
+        notesEl.textContent = settings.note || "";
+      }
+      populate();
+
+      function update() {
+        const quitStr = quitInput.value;
+        if (!quitStr) return;
+        const quitDate = new Date(quitStr),
+          now = new Date();
+        let diff = now - quitDate;
+        if (diff < 0) diff = 0;
+        const sec = Math.floor(diff / 1e3) % 60,
+          min = Math.floor(diff / 6e4) % 60,
+          hrs = Math.floor(diff / 36e5) % 24,
+          days = Math.floor(diff / 864e5);
+        const totalHours = Math.floor(diff / 36e5);
+        daysEl.textContent = days;
+        hoursEl.textContent = String(hrs).padStart(2, "0");
+        minutesEl.textContent = String(min).padStart(2, "0");
+        secondsEl.textContent = String(sec).padStart(2, "0");
+        totalHoursEl.textContent = totalHours.toLocaleString("sk-SK");
+        const cigsPerDay = +cigsInput.value || 0,
+          daysFloat = diff / 864e5,
+          cigsSaved = Math.floor(
+            daysFloat * cigsPerDay + (hrs / 24) * cigsPerDay
+          );
+        cigsSavedEl.textContent = cigsSaved.toLocaleString("sk-SK");
+        const pricePerPack = +priceInput.value || 0,
+          cigsPerPack = +perPackInput.value || 20,
+          packsEquivalent = cigsSaved / cigsPerPack,
+          money = packsEquivalent * pricePerPack;
+        moneySavedEl.textContent =
+          money.toLocaleString("sk-SK", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }) + " €";
+        const beers = Math.floor(money / BEER_PRICE);
+        beersSavedEl.textContent = beers.toLocaleString("sk-SK");
+      }
+      setInterval(update, 1000);
+      update();
+
+      document.getElementById("saveBtn").onclick = () => {
+        settings.quit = quitInput.value;
+        settings.cigsPerDay = +cigsInput.value || 0;
+        settings.pricePerPack = +priceInput.value || 0;
+        settings.cigsPerPack = +perPackInput.value || 20;
+        settings.note = noteInput.value || "";
+        saveSettings(settings);
+        notesEl.textContent = settings.note;
+        alert("Nastavenia uložené.");
+      };
+      document.getElementById("setNow").onclick = () => {
+        const now = new Date(),
+          local = new Date(now.getTime() - now.getTimezoneOffset() * 6e4)
+            .toISOString()
+            .slice(0, 16);
+        quitInput.value = local;
+        settings.quit = local;
+        saveSettings(settings);
+        update();
+      };
+      document.getElementById("resetBtn").onclick = () => {
+        if (confirm("Naozaj resetovať nastavenia?")) {
+          localStorage.removeItem(STORAGE_KEY);
+          settings = {
+            quit: new Date().toISOString().slice(0, 16),
+            cigsPerDay: 10,
+            pricePerPack: 5,
+            cigsPerPack: 20,
+            note: "Drží sa skvele 💪",
+          };
+          populate();
+          update();
+          alert("Resetované.");
+        }
+      };
+      [quitInput, cigsInput, priceInput, perPackInput, noteInput].forEach(
+        (el) =>
+          el.addEventListener("change", () => {
+            settings.quit = quitInput.value;
+            settings.cigsPerDay = +cigsInput.value || 0;
+            settings.pricePerPack = +priceInput.value || 0;
+            settings.cigsPerPack = +perPackInput.value || 20;
+            settings.note = noteInput.value || "";
+            saveSettings(settings);
+          })
+      );
+
+      const displayBtn = document.getElementById("displayBtn");
+      const settingsPanel = document.getElementById("settingsPanel");
+      let displayMode = false;
+      displayBtn.onclick = () => {
+        displayMode = !displayMode;
+        settingsPanel.classList.toggle("hidden", displayMode);
+        if (displayMode) {
+          displayBtn.querySelector("span").textContent = "Zobraziť nastavenia";
+        } else {
+          displayBtn.querySelector("span").textContent = "Zobraziť len timer";
+        }
+      };
+
+      quitInput.focus();
+    </script>
+  </body>
+</html>
