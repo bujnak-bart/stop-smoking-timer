@@ -1,5 +1,5 @@
 <!--
-StopSmokingTimer.html with Velo theme + monitor display toggle + beer converter + hours counter
+StopSmokingTimer.html customized defaults + dynamic notes by cigarettes saved
 -->
 
 <!DOCTYPE html>
@@ -204,7 +204,7 @@ StopSmokingTimer.html with Velo theme + monitor display toggle + beer converter 
 
       <header>
         <div>
-          <h1>ĽUDO už nefajčí</h1>
+          <h1>Timer — čas od prestania fajčiť</h1>
           <p class="lead">
             Ukazuje presný čas (dni, hodiny, minúty, sekundy), celkové hodiny,
             cigarety ušetrené, peniaze a počet pív.
@@ -342,13 +342,17 @@ StopSmokingTimer.html with Velo theme + monitor display toggle + beer converter 
       const beersSavedEl = document.getElementById("beersSaved");
       const notesEl = document.getElementById("notes");
 
-      let settings = loadSettings() || {
-        quit: new Date().toISOString().slice(0, 16),
-        cigsPerDay: 10,
-        pricePerPack: 5,
+      // Default values on first load
+      const defaultQuit = "2025-11-02T08:30";
+      const defaultSettings = {
+        quit: defaultQuit,
+        cigsPerDay: 28,
+        pricePerPack: 4.2,
         cigsPerPack: 20,
         note: "Drží sa skvele 💪",
       };
+
+      let settings = loadSettings() || defaultSettings;
 
       function populate() {
         quitInput.value = settings.quit;
@@ -359,6 +363,15 @@ StopSmokingTimer.html with Velo theme + monitor display toggle + beer converter 
         notesEl.textContent = settings.note || "";
       }
       populate();
+
+      function getDynamicNote(cigsSaved) {
+        if (cigsSaved < 40) return "Drží sa skvele 💪";
+        if (cigsSaved < 50) return "Začína to byť náročné 😬";
+        if (cigsSaved < 60) return "Už chce rozbíjať stoličku 😤";
+        if (cigsSaved < 80) return "Nervozita sa stupňuje 😡";
+        if (cigsSaved < 100) return "Možno by si zaslúžil pivo 🍺";
+        return "Legenda bez dymu 🔥";
+      }
 
       function update() {
         const quitStr = quitInput.value;
@@ -394,6 +407,7 @@ StopSmokingTimer.html with Velo theme + monitor display toggle + beer converter 
           }) + " €";
         const beers = Math.floor(money / BEER_PRICE);
         beersSavedEl.textContent = beers.toLocaleString("sk-SK");
+        notesEl.textContent = getDynamicNote(cigsSaved);
       }
       setInterval(update, 1000);
       update();
@@ -421,13 +435,7 @@ StopSmokingTimer.html with Velo theme + monitor display toggle + beer converter 
       document.getElementById("resetBtn").onclick = () => {
         if (confirm("Naozaj resetovať nastavenia?")) {
           localStorage.removeItem(STORAGE_KEY);
-          settings = {
-            quit: new Date().toISOString().slice(0, 16),
-            cigsPerDay: 10,
-            pricePerPack: 5,
-            cigsPerPack: 20,
-            note: "Drží sa skvele 💪",
-          };
+          settings = defaultSettings;
           populate();
           update();
           alert("Resetované.");
