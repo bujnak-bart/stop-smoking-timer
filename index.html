@@ -257,16 +257,12 @@ StopSmokingTimer.html customized defaults + dynamic notes by cigarettes saved
                 <div id="beersSaved" class="big">0</div>
               </div>
               <div class="metric">
-                <div class="label">Pripomienky</div>
                 <div id="notes" class="big">Drží sa skvele 💪</div>
               </div>
             </div>
           </div>
 
-          <footer>
-            Autom. aktualizácia každú sekundu. Dáta sú uložené lokálne v
-            prehliadači.
-          </footer>
+          <footer></footer>
         </div>
 
         <aside class="card" id="settingsPanel">
@@ -364,13 +360,106 @@ StopSmokingTimer.html customized defaults + dynamic notes by cigarettes saved
       }
       populate();
 
-      function getDynamicNote(cigsSaved) {
-        if (cigsSaved < 40) return "Drží sa skvele 💪";
-        if (cigsSaved < 50) return "Začína to byť náročné 😬";
-        if (cigsSaved < 60) return "Už chce rozbíjať stoličku 😤";
-        if (cigsSaved < 80) return "Nervozita sa stupňuje 😡";
-        if (cigsSaved < 100) return "Možno by si zaslúžil pivo 🍺";
-        return "Legenda bez dymu 🔥";
+      const motivationalQuotes = [
+        "Drží sa skvele 💪",
+        "Začína to byť náročné 😬",
+        "Už chce rozbíjať stoličku 😤",
+        "Nervozita sa stupňuje 😡",
+        "Možno by si zaslúžil pivo 🍺",
+        "Legenda bez dymu 🔥",
+        "Ľudo, aj komín by závidel tvoju výdrž!",
+        "Aj cigarety sa ťa boja spomenúť!",
+        "Ľudo, tvoje pľúca organizujú festival čistého vzduchu!",
+        "Ak si nervózny, daj si vodu. Ale nie z popolníka!",
+        "Telo ti ďakuje a peňaženka posiela objatie!",
+        "Ľudo, tvoj dych by mohol osviežovať miestnosti!",
+        "Už ťa ani automat na cigy nespoznáva!",
+        "Gratulujeme, si fajčiarsky dôchodca – bez dymu!",
+        "Ľudo, tvoje ruky už voňajú ako človek, nie ako komín!",
+        "Už ťa môže objať nefajčiar bez plynové masky!",
+        "Ešte chvíľu a tvoje pľúca si objednajú šampanské!",
+        "Ľudo, keď vydržíš, napíš knihu!",
+        "Si ako Batman, ale miesto jaskyne máš čisté pľúca!",
+        "Dym z komína závidí tvoju absenciu dymu!",
+        "Ľudo, už by si mohol učiť kurz 'Ako nefajčiť a prežiť'!",
+        "Každý moment bez cigy = level up v hre Život!",
+        "Ľudo, keby bola sila vôle mena, voláš sa Nikotínobijec!",
+        "Aj cigarety si ťa dali na zoznam zakázaných osôb!",
+        "Tvoj nos práve zistil, že svet vonia!",
+        "Ľudo, tvoje pľúca píšu list: 'Ďakujeme, konečne!'",
+        "Už niekoľko dní! Keby si bol motor, ideš na čistý vzduch!",
+        "Dym už len na fotkách!",
+        "Ľudo, si ako detox v ľudskej podobe!",
+        "Každá minúta bez cigy je dôvod na pivo!",
+        "Nikotín volal. Hovor neprijatý!",
+        "Ľudo, aj tvoj popolník požiadal o azyl!",
+        "Už ťa ani zapalovač nepozná!",
+        "Máš viac energie než 5 espresso a 0 cigariet!",
+        "Ľudo, keby si mal achievementy, dostal by si 'Dýchaj voľne'!",
+        "Dostaneš čestné miesto v Hall of Fame nefajčiarov!",
+        "Cigarety by ti teraz dali potlesk... keby mali ruky!",
+        "Ľudo, tvoje pľúca si otvárajú airbnb pre kyslík!",
+        "Nervozita? Skús ju prepiť čajom, nie pivom!",
+        "Každý deň bez dymu je bonusový level života!",
+        "Ľudo, tvoje tričko konečne neprešlo testom zápachu!",
+        "Už ani pes nezuteká keď si blízko!",
+        "Tvoje telo má party: vstup len pre nefajčiarov!",
+        "Ľudo, aj tvoje zuby si zobrali dovolenku od nikotínu!",
+        "Si ako filter HEPA – zachytíš len to dobré!",
+        "Popolník sa sťahuje do múzea minulosti!",
+        "Ľudo, máš viac peňazí a menej dymu – ideál!",
+        "Keby mal Nikotín city, teraz plače!",
+        "Ešte trochu a si čistý celý rok!",
+        "Ľudo, tvoje telo má nový soundtrack: ticho bez kašľa!",
+        "Tvoja pleť ti posiela ❤️",
+        "Si ako programátor bez bugov – čistý!",
+        "Už aj tvoja káva chutí lepšie!",
+        "Ľudo, si walking victory!",
+        "Ak vydržíš, si oficiálne legendárny!",
+        "Ľudo – rekord vo vesmíre!",
+        "Si ninja nefajčenia!",
+        "Ľudo, vzduch ťa adoptoval!",
+        "Cigarety plačú do vankúša!",
+        "Si ako nový mobil - bez škodlivých aplikácií!",
+        "Tvoje pľúca píšu 5-hviezdičkové recenzie!",
+        "Aj komín ťa respektuje!",
+        "Si živý dôkaz, že zázraky existujú!",
+        "Ľudo, si upgrade svojho starého ja!",
+        "Peniaze rastú, dym klesá - stonks!",
+        "Si fresh ako ranná rosa!",
+        "Cigarety ťa vyradili zo zoznamu priateľov!",
+        "Ľudo, si antivírus pre pľúca!",
+        "Aj tvoj tieň vonia lepšie!",
+        "Si walking advertisement pre zdravý život!",
+        "Ľudo, máš superpower - dýchaš čisto!",
+        "Tvoje pľúca oslavujú nezávislosť!",
+        "Si ako Tesla - ekologický a tichý!",
+        "Ľudo, aj tvoj dych má teraz WiFi - pripojený k zdraviu!",
+        "Cigarety požiadali o azyl v inej krajine!",
+        "Si ako nová verzia seba - bez bugov!",
+        "Ľudo, tvoja peňaženka ti ďakuje standing ovation!",
+        "Aj tvoje oblečenie si oddýchlo!",
+        "Si proof of concept pre zdravý život!",
+        "Ľudo, máš achievement unlocked: Čistý život!",
+        "Tvoje telo má teraz premium subscription na zdravie!",
+      ];
+
+      let currentNote = "";
+      let lastHour = -1;
+
+      function getDynamicNote(totalHours) {
+        // Ak sa hodina nezmenila, vráť aktuálnu poznámku
+        if (totalHours === lastHour && currentNote) {
+          return currentNote;
+        }
+
+        // Ak sa hodina zmenila, vygeneruj novú poznámku
+        lastHour = totalHours;
+        const randomIndex = Math.floor(
+          Math.random() * motivationalQuotes.length
+        );
+        currentNote = motivationalQuotes[randomIndex];
+        return currentNote;
       }
 
       function update() {
@@ -407,7 +496,7 @@ StopSmokingTimer.html customized defaults + dynamic notes by cigarettes saved
           }) + " €";
         const beers = Math.floor(money / BEER_PRICE);
         beersSavedEl.textContent = beers.toLocaleString("sk-SK");
-        notesEl.textContent = getDynamicNote(cigsSaved);
+        notesEl.textContent = getDynamicNote(totalHours);
       }
       setInterval(update, 1000);
       update();
